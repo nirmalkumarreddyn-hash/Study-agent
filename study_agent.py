@@ -2137,5 +2137,6 @@ with gr.Blocks(theme=THEME, css=CSS, title="B.Tech 2nd Year (Term 1) AI Study Pl
     p_btn3.click(lambda h, o: answer_doubt(h, "What is the difference between Poisson and Binomial distributions and when is Poisson used as an approximation?", o), [chatbot, orch_state], [chatbot, chat_msg])
     p_btn4.click(lambda h, o: answer_doubt(h, "Explain real-world and systems applications of Stacks versus Queues in C++", o), [chatbot, orch_state], [chatbot, chat_msg])
 
-if __name__ == "__main__":
-    demo.queue().launch(share=True, debug=False, show_error=True)
+import os
+port = int(os.environ.get("PORT", 7860))
+demo.queue().launch(server_name="0.0.0.0", server_port=port)
