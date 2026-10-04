@@ -1757,44 +1757,57 @@ def render_calendar_html(exam_str: str) -> str:
     month_name = calendar.month_name[cal_month]
 
     html_out = [
-        f"<div style='background:rgba(15,118,110,0.08);border:1.5px solid #0f766e;border-radius:12px;padding:14px;margin-top:10px;'>",
-        f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;'>",
-        f"<span style='font-weight:700;color:#0f766e;font-size:0.95rem;'>🗓️ {month_name} {cal_year}</span>",
-        f"<span style='background:#0f766e;color:#fff;padding:3px 10px;border-radius:12px;font-size:0.75rem;font-weight:600;'>",
+        "<div class='cal-card-box' style='background:rgba(15,118,110,0.1);border:1.5px solid #0f766e;border-radius:12px;padding:14px 12px;margin-top:10px;'>",
+        "<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;'>",
+        f"<span style='font-weight:700;color:#2dd4bf;font-size:0.98rem;display:flex;align-items:center;gap:6px;'>🗓️ {month_name} {cal_year}</span>",
+        f"<span style='background:#0d9488;color:#fff;padding:3px 12px;border-radius:12px;font-size:0.75rem;font-weight:600;box-shadow:0 2px 6px rgba(13,148,136,0.4);'>",
         f"{'⏳ ' + str(days_left) + ' Days to Exam' if days_left > 0 else '🎯 Exam Day!' if days_left == 0 else 'Exam passed'}",
-        f"</span></div>",
-        "<table style='width:100%;text-align:center;border-collapse:collapse;font-size:0.8rem;'>",
-        "<tr style='opacity:0.65;font-size:0.75rem;border-bottom:1px solid rgba(15,118,110,0.2);'><th style='padding:4px;'>Mo</th><th style='padding:4px;'>Tu</th><th style='padding:4px;'>We</th><th style='padding:4px;'>Th</th><th style='padding:4px;'>Fr</th><th style='padding:4px;'>Sa</th><th style='padding:4px;'>Su</th></tr>"
+        "</span></div>",
+        "<table class='cal-table' style='width:100% !important;table-layout:fixed !important;border-collapse:separate !important;border-spacing:0 !important;border:none !important;margin:0 auto !important;'>",
+        "<thead><tr style='border:none !important;border-bottom:1px solid rgba(20,184,166,0.2) !important;'>",
     ]
 
+    for day_name in ["Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"]:
+        html_out.append(f"<th style='width:14.285% !important;text-align:center !important;vertical-align:middle !important;padding:6px 0 !important;font-size:0.76rem !important;font-weight:600 !important;color:#94a3b8 !important;border:none !important;background:transparent !important;'>{day_name}</th>")
+    html_out.append("</tr></thead><tbody>")
+
     for week in cal:
-        html_out.append("<tr>")
+        html_out.append("<tr style='border:none !important;background:transparent !important;'>")
         for d in week:
             if d == 0:
-                html_out.append("<td></td>")
+                html_out.append("<td style='width:14.285% !important;height:36px !important;border:none !important;background:transparent !important;padding:2px 0 !important;'></td>")
             else:
                 curr_d = date(cal_year, cal_month, d)
-                style = "display:inline-block;width:26px;height:26px;line-height:26px;border-radius:6px;margin:2px;"
+                base_style = "display:inline-flex !important;align-items:center !important;justify-content:center !important;width:30px !important;height:30px !important;margin:0 auto !important;border-radius:8px !important;font-size:0.82rem !important;box-sizing:border-box !important;line-height:1 !important;"
                 title = f"{curr_d.strftime('%Y-%m-%d')}"
                 if curr_d == today:
-                    style += "background:#0f766e;color:#fff;font-weight:bold;box-shadow:0 0 5px rgba(15,118,110,0.5);"
+                    cell_cls = "cal-day-span cal-day-today"
+                    extra_style = "background:#0d9488 !important;color:#ffffff !important;font-weight:700 !important;box-shadow:0 0 8px rgba(13,148,136,0.6) !important;"
                     title += " (Today)"
                 elif curr_d == exam_d:
-                    style += "background:#d97706;color:#fff;font-weight:bold;box-shadow:0 0 6px rgba(217,119,6,0.6);"
+                    cell_cls = "cal-day-span cal-day-exam"
+                    extra_style = "background:#d97706 !important;color:#ffffff !important;font-weight:700 !important;box-shadow:0 0 8px rgba(217,119,6,0.7) !important;"
                     title += " (Exam Day)"
                 elif today < curr_d < exam_d:
-                    style += "background:rgba(15,118,110,0.16);color:#0f766e;font-weight:500;"
+                    cell_cls = "cal-day-span cal-day-prep"
+                    extra_style = "background:rgba(20,184,166,0.18) !important;color:#2dd4bf !important;font-weight:600 !important;border:1px solid rgba(20,184,166,0.35) !important;"
                 else:
-                    style += "color:inherit;"
-                html_out.append(f"<td><span style='{style}' title='{title}'>{d}</span></td>")
+                    cell_cls = "cal-day-span cal-day-normal"
+                    extra_style = "color:#94a3b8 !important;opacity:0.8 !important;"
+                
+                html_out.append(
+                    f"<td style='width:14.285% !important;height:36px !important;text-align:center !important;vertical-align:middle !important;padding:2px 0 !important;border:none !important;background:transparent !important;'>"
+                    f"<span class='{cell_cls}' style='{base_style}{extra_style}' title='{title}'>{d}</span>"
+                    f"</td>"
+                )
         html_out.append("</tr>")
 
-    html_out.append("</table>")
+    html_out.append("</tbody></table>")
     html_out.append(
-        "<div style='margin-top:10px;font-size:0.73rem;display:flex;justify-content:space-around;opacity:0.85;'>"
-        "<span><span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#0f766e;margin-right:4px;'></span>Today</span>"
-        "<span><span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:#d97706;margin-right:4px;'></span>Exam Day</span>"
-        "<span><span style='display:inline-block;width:9px;height:9px;border-radius:50%;background:rgba(15,118,110,0.25);margin-right:4px;'></span>Prep Window</span>"
+        "<div style='margin-top:12px;padding-top:8px;border-top:1px solid rgba(20,184,166,0.15);font-size:0.74rem;display:flex;justify-content:space-around;align-items:center;opacity:0.9;color:#94a3b8;'>"
+        "<span style='display:inline-flex;align-items:center;gap:5px;'><span style='display:inline-block;width:8px;height:8px;border-radius:50%;background:#0d9488;'></span>Today</span>"
+        "<span style='display:inline-flex;align-items:center;gap:5px;'><span style='display:inline-block;width:8px;height:8px;border-radius:50%;background:#d97706;'></span>Exam Day</span>"
+        "<span style='display:inline-flex;align-items:center;gap:5px;'><span style='display:inline-block;width:8px;height:8px;border-radius:50%;background:#2dd4bf;'></span>Prep Window</span>"
         "</div></div>"
     )
     return "".join(html_out)
@@ -1834,6 +1847,19 @@ CSS = """
 .dot{width:11px;height:11px;border-radius:50%;display:inline-block;box-sizing:border-box}
 .dot.missed{opacity:.4;outline:1.5px solid #dc2626}.dot.done{opacity:.45}.ex{font-weight:700;font-size:.8rem}
 .mcq-container{border:1.5px solid var(--border-color-primary,#e2e8f0);border-radius:10px;padding:12px 16px;margin:10px 0;background:var(--background-fill-secondary,#f8fafc)}
+
+/* Interactive Calendar Card */
+.cal-card-box { background: rgba(15,118,110,0.1); border: 1.5px solid #0f766e; border-radius: 12px; padding: 14px 12px; margin-top: 10px; }
+.cal-table, .cal-table table, table.cal-table { width: 100% !important; table-layout: fixed !important; border-collapse: separate !important; border-spacing: 0 !important; border: none !important; margin: 4px 0 !important; }
+.cal-table thead, .cal-table tbody, .cal-table tr { border: none !important; background: transparent !important; }
+.cal-table th { width: 14.285% !important; text-align: center !important; vertical-align: middle !important; padding: 6px 0 !important; font-size: 0.76rem !important; font-weight: 600 !important; color: #94a3b8 !important; border: none !important; background: transparent !important; }
+.cal-table td { width: 14.285% !important; height: 36px !important; text-align: center !important; vertical-align: middle !important; padding: 2px 0 !important; border: none !important; background: transparent !important; }
+.cal-day-span { display: inline-flex !important; align-items: center !important; justify-content: center !important; width: 30px !important; height: 30px !important; margin: 0 auto !important; border-radius: 8px !important; font-size: 0.82rem !important; box-sizing: border-box !important; transition: all 0.15s ease !important; line-height: 1 !important; }
+.cal-day-today { background: #0d9488 !important; color: #ffffff !important; font-weight: 700 !important; box-shadow: 0 0 8px rgba(13,148,136,0.6) !important; }
+.cal-day-exam { background: #d97706 !important; color: #ffffff !important; font-weight: 700 !important; box-shadow: 0 0 8px rgba(217,119,6,0.7) !important; }
+.cal-day-prep { background: rgba(20,184,166,0.18) !important; color: #2dd4bf !important; font-weight: 600 !important; border: 1px solid rgba(20,184,166,0.35) !important; }
+.cal-day-normal { color: #94a3b8 !important; opacity: 0.8 !important; }
+
 """
 
 THEME = gr.themes.Soft(primary_hue="teal", secondary_hue="amber", neutral_hue="slate",
@@ -1959,11 +1985,11 @@ def set_days_ahead(days):
 # ==============================================================================
 # GRADIO APPLICATION
 # ==============================================================================
-with gr.Blocks(theme=THEME, css=CSS, title="B.Tech 2nd Year (Term 1) AI Study Planner") as demo:
+with gr.Blocks(theme=THEME, css=CSS, title="AI Study Planner & Performance Agent") as demo:
     orch_state = gr.State(None)
     gr.HTML(
         "<div class='hero'>"
-        "<h1>🎓 B.Tech 2nd Year (Term 1) AI Study Planner &amp; Performance Agent</h1>"
+        "<h1>🎓 AI Study Planner &amp; Performance Agent</h1>"
         "<p>Curriculum tailored for <b>Probability &amp; Statistics</b>, <b>DSA C++</b>, <b>ADBMS</b>, and <b>Fundamentals of AI (FAI)</b>. "
         "Diagnose module gaps, build spaced-repetition timelines, take Multiple Choice Quizzes with instant grading, and ask questions to the AI Doubt Solver.</p>"
         "</div>"
